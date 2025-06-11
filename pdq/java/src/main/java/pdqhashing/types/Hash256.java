@@ -7,6 +7,7 @@ package pdqhashing.types;
 import pdqhashing.types.PDQHashFormatException;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,6 +67,20 @@ public class Hash256 implements Comparable<Hash256> {
       (int)(this.w[5]  & 0xffff), (int)(this.w[4]  & 0xffff),
       (int)(this.w[3]  & 0xffff), (int)(this.w[2]  & 0xffff),
       (int)(this.w[1]  & 0xffff), (int)(this.w[0]  & 0xffff));
+  }
+
+  
+  public byte[] toByteArray() {
+    byte[] result = new byte[32];
+    for (int i = 0; i < 16; i++) {
+      result[i * 2]     = (byte) ((w[i] >> 8) & 0xFF); // High byte
+      result[i * 2 + 1] = (byte) (w[i] & 0xFF);        // Low byte
+    }
+    return result;
+  }
+
+  public String toBase64String() {
+    return Base64.getEncoder().encodeToString(toByteArray());
   }
 
   // ----------------------------------------------------------------
