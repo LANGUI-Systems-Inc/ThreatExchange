@@ -89,6 +89,42 @@ public class PDQHasher {
 
   // ----------------------------------------------------------------
   public HashAndQuality fromFile(
+          File file,
+          HashingMetadata hashingMetadata)
+          throws IOException
+  {
+    long t1, t2;
+
+    t1 = System.nanoTime();
+    BufferedImage img = null;
+    try {
+      img = ImageIO.read(file);
+    } catch (IOException e) {
+      throw e;
+    }
+    t2 = System.nanoTime();
+    hashingMetadata.readSeconds = (float)((t2 - t1) / 1e9);
+
+    int numRows = img.getHeight();
+    int numCols = img.getWidth();
+    hashingMetadata.imageHeightTimesWidth = numRows * numCols;
+
+    float[] buffer1 = MatrixUtil.allocateMatrixAsRowMajorArray(numRows, numCols);
+    float[] buffer2 = MatrixUtil.allocateMatrixAsRowMajorArray(numRows, numCols);
+    float[][] buffer64x64 = MatrixUtil.allocateMatrix(64, 64);
+    float[][] buffer16x64 = MatrixUtil.allocateMatrix(16, 64);
+    float[][] buffer16x16 = MatrixUtil.allocateMatrix(16, 16);
+
+    t1 = System.nanoTime();
+    HashAndQuality rv = fromBufferedImage(img, buffer1, buffer2, buffer64x64, buffer16x64, buffer16x16);
+    t2 = System.nanoTime();
+    hashingMetadata.hashSeconds = (float)((t2 - t1) / 1e9);
+
+    return rv;
+  }
+
+  // ----------------------------------------------------------------
+  public HashAndQuality fromFile(
     String filename,
     HashingMetadata hashingMetadata)
       throws IOException
